@@ -213,12 +213,6 @@
                                     </a>
                                 </li>
                                 <li>
-                                    <a href="{{ route('leaderboard.index') }}" class="flex items-center justify-between p-3 rounded-md hover:bg-green-50 transition-colors">
-                                        <span class="font-medium text-green-600">Lihat Papan Peringkat</span>
-                                        <svg class="h-5 w-5 text-green-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="m8.25 4.5 7.5 7.5-7.5 7.5" /></svg>
-                                    </a>
-                                </li>
-                                <li>
                                     <a href="{{ route('profile.edit') }}" class="flex items-center justify-between p-3 rounded-md hover:bg-green-50 transition-colors">
                                         <span class="font-medium text-green-600">Edit Profil & Level</span>
                                         <svg class="h-5 w-5 text-green-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="m8.25 4.5 7.5 7.5-7.5 7.5" /></svg>

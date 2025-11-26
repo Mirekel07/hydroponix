@@ -5,7 +5,7 @@
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <meta name="csrf-token" content="{{ csrf_token() }}">
 
-        <title>Hidrophonix</title>
+        <title>Hydroponix</title>
         <style>
             @import url('https://fonts.googleapis.com/css2?family=DM+Serif+Text&family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap');
 

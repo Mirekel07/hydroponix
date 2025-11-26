@@ -33,11 +33,22 @@
                             @if ($module->quiz)
                                 <div class="flex flex-col items-center md:items-end w-full">
                                     <span class="text-lg italic text-gray-500 font-semibold">Uji Pemahaman Anda 📝</span>
-                                    <a href="{{ route('quiz.show', $module->quiz->id) }}"
-                                       class="mt-2 w-full md:w-auto text-center px-6 py-3 bg-green-600 text-white rounded-md hover:bg-green-700 font-semibold shadow-sm transition-colors duration-200">
-                                        <!-- [DIRAPIKAN] Teks tombol disederhanakan -->
-                                        Mulai Kuis
-                                    </a>
+
+                                    <!-- [LOGIKA TOMBOL CERDAS] -->
+                                    @auth
+                                        <!-- Jika User Login -> Mulai Kuis (Hijau) -->
+                                        <a href="{{ route('quiz.show', $module->quiz->id) }}"
+                                           class="mt-2 w-full md:w-auto text-center px-6 py-3 bg-green-600 text-white rounded-md hover:bg-green-700 font-semibold shadow-sm transition-colors duration-200">
+                                            Mulai Kuis
+                                        </a>
+                                    @else
+                                        <!-- Jika Tamu -> Login Dulu (Biru) -->
+                                        <a href="{{ route('login') }}"
+                                           class="mt-2 w-full md:w-auto text-center px-6 py-3 bg-blue-600 text-white rounded-md hover:bg-blue-700 font-semibold shadow-sm transition-colors duration-200">
+                                            Login untuk Kuis
+                                        </a>
+                                    @endauth
+
                                 </div>
                             @else
                                 <!-- Placeholder jika tidak ada kuis -->

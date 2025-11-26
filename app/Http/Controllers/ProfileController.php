@@ -31,7 +31,8 @@ class ProfileController extends Controller
         if ($nextLevelScore) {
             if ($nextLevelScore > 0) {
                 $progressPercent = ($user->total_score / $nextLevelScore) * 100;
-                if ($progressPercent > 100) $progressPercent = 100;
+                if ($progressPercent > 100)
+                    $progressPercent = 100;
             }
         } else {
             $progressPercent = 100;
@@ -45,23 +46,23 @@ class ProfileController extends Controller
 
         // 3. [BARU] Daftar Tanaman (Aktif & Selesai)
         $myPlants = UserPlant::where('user_id', $user->id)
-                             ->with(['plant', 'currentMission'])
-                             ->orderBy('status', 'asc') // Aktif dulu, baru completed
-                             ->orderBy('created_at', 'desc')
-                             ->get();
+            ->with(['plant', 'currentMission'])
+            ->orderBy('status', 'asc') // Aktif dulu, baru completed
+            ->orderBy('created_at', 'desc')
+            ->get();
 
         // 4. [BARU] Riwayat Kuis
         $myQuizzes = UserQuizAttempt::where('user_id', $user->id)
-                                    ->with('quiz.module')
-                                    ->orderBy('created_at', 'desc')
-                                    ->get();
+            ->with('quiz.module')
+            ->orderBy('created_at', 'desc')
+            ->get();
 
         // 5. [BARU] Logika BADGE (Penghargaan Sistem)
         // Kita buat logika manual di sini tanpa tabel database khusus
         $badges = collect([
             [
                 'name' => 'Pendatang Baru',
-                'desc' => 'Bergabung dengan Hidrophonix',
+                'desc' => 'Bergabung dengan Hydroponix',
                 'icon' => '👋',
                 'unlocked' => true, // Selalu dapat
             ],

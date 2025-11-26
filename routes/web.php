@@ -9,7 +9,6 @@ use App\Http\Controllers\QuizController;
 use App\Http\Controllers\PlantController;
 use App\Http\Controllers\UserPlantController;
 use App\Http\Controllers\CalendarController;
-use App\Http\Controllers\LeaderboardController;
 
 // [ADMIN] Import Controller
 use App\Http\Controllers\Admin\AdminDashboardController;
@@ -30,6 +29,9 @@ use App\Http\Controllers\Admin\PlantMissionController as AdminPlantMissionContro
 // Rute Halaman Depan (Welcome)
 Route::get('/', [WelcomeController::class, 'index'])->name("welcome");
 
+
+Route::get('/modules/{module:slug}', [ModuleController::class, 'show'])->name('modules.show');
+
 // Rute untuk user yang sudah terautentikasi
 Route::middleware(['auth', 'verified'])->group(function () {
 
@@ -45,11 +47,9 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/calendar', [CalendarController::class, 'index'])->name('calendar.index');
     Route::get('/calendar/events', [CalendarController::class, 'getEvents'])->name('calendar.events');
     Route::get('/modules', [ModuleController::class, 'index'])->name('modules.index');
-    Route::get('/modules/{module:slug}', [ModuleController::class, 'show'])->name('modules.show');
     Route::get('/quiz/{quiz}', [QuizController::class, 'show'])->name('quiz.show');
     Route::post('/quiz/{quiz}', [QuizController::class, 'submit'])->name('quiz.submit');
     Route::get('/quiz/result/{attempt}', [QuizController::class, 'result'])->name('quiz.result');
-    Route::get('/leaderboard', [LeaderboardController::class, 'index'])->name('leaderboard.index');
 });
 
 // [ADMIN] Grup Rute Khusus Admin

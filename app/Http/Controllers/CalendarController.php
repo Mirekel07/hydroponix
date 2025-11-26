@@ -10,49 +10,59 @@ use Illuminate\Support\Facades\Storage;
 class CalendarController extends Controller
 {
     /**
-     * Menampilkan halaman utama kalender
-     * dan mengirim data tanaman yang sedang aktif.
+     * Menampilkan halaman utama kalender.
+     * Data events dikirim langsung ke view untuk Alpine.js.
      */
     public function index()
     {
-        $activePlant = UserPlant::where('user_id', Auth::id())
+        // 1. Ambil semua tanaman aktif
+        $activePlants = UserPlant::where('user_id', Auth::id())
             ->where('status', 'active')
-            ->with(['plant', 'currentMission'])
-            ->first();
+            ->with(['plant.missions', 'currentMission'])
+            ->get();
+
+        // 2. Generate events di server-side agar siap pakai di view
+        $events = $this->generateEventsData($activePlants);
 
         return view('calendar.index', [
-            'activePlant' => $activePlant
+            'activePlants' => $activePlants,
+            'events' => $events, // Kirim data events langsung
         ]);
     }
 
     /**
-     * [VERSI FINAL] Mengambil data event untuk kalender
-     * dengan semua data misi untuk (eventClick).
+     * API untuk mengambil data event (jika diperlukan untuk navigasi bulan via AJAX nanti)
      */
     public function getEvents(Request $request)
     {
-        $activePlant = UserPlant::where('user_id', Auth::id())
+        $activePlants = UserPlant::where('user_id', Auth::id())
             ->where('status', 'active')
-            // [PENTING] Pastikan plant.missions (jamak) di-load di sini
             ->with(['plant.missions', 'currentMission'])
-            ->first();
+            ->get();
 
+        $events = $this->generateEventsData($activePlants);
+
+        return response()->json($events);
+    }
+
+    /**
+     * Helper function untuk mengolah logika tanggal misi
+     */
+    private function generateEventsData($activePlants)
+    {
         $events = [];
 
-        if ($activePlant) {
+        foreach ($activePlants as $activePlant) {
             $currentMission = $activePlant->currentMission;
             $startDate = $activePlant->mission_started_at;
 
-            // Ambil koleksi misi yang sudah di-load
-            $allMissions = $activePlant->plant->missions;
-
-            // 1. Tambahkan event untuk misi yang sedang berjalan
+            // --- A. Misi SEDANG BERJALAN (Kuning) ---
             $events[] = [
-                'title' => $currentMission->title,
-                'start' => $startDate->format('Y-m-d'),
-                'end'   => $startDate->copy()->addDays($currentMission->duration_days)->format('Y-m-d'),
-                'backgroundColor' => '#F59E0B', // Kuning
-                'borderColor' => '#F59E0B',
+                'id' => 'current-' . $activePlant->id,
+                'title' => "{$activePlant->plant->name}: {$currentMission->title}",
+                'date_start' => $startDate->format('Y-m-d'), // Format standar Y-m-d
+                'date_end'   => $startDate->copy()->addDays($currentMission->duration_days)->subDay()->format('Y-m-d'), // Kurangi 1 hari agar pas di visual
+                'color' => 'yellow', // Class indikator warna
                 'extendedProps' => [
                     'step_number' => $currentMission->step_number,
                     'description' => $currentMission->description,
@@ -62,19 +72,20 @@ class CalendarController extends Controller
                 ]
             ];
 
-            // 2. Hitung dan tambahkan semua event misi di masa depan
-            //    Gunakan koleksi yang sudah di-load, bukan query baru
-            $futureMissions = $allMissions->where('step_number', '>', $currentMission->step_number)
-                                         ->sortBy('step_number'); // Gunakan sortBy (untuk koleksi)
+            // --- B. Misi MENDATANG (Hijau) ---
+            $futureMissions = $activePlant->plant->missions
+                ->where('step_number', '>', $currentMission->step_number)
+                ->sortBy('step_number');
 
             $cumulativeDate = $startDate->copy()->addDays($currentMission->duration_days);
 
             foreach ($futureMissions as $mission) {
                 $events[] = [
-                    'title' => $mission->title,
-                    'start' => $cumulativeDate->format('Y-m-d'),
-                    'end'   => $cumulativeDate->copy()->addDays($mission->duration_days)->format('Y-m-d'),
-                    // 'extendedProps' ditambahkan untuk konsistensi
+                    'id' => 'future-' . $activePlant->id . '-' . $mission->id,
+                    'title' => "{$activePlant->plant->name}: {$mission->title}",
+                    'date_start' => $cumulativeDate->format('Y-m-d'),
+                    'date_end'   => $cumulativeDate->copy()->addDays($mission->duration_days)->subDay()->format('Y-m-d'),
+                    'color' => 'green', // Class indikator warna
                     'extendedProps' => [
                         'step_number' => $mission->step_number,
                         'description' => $mission->description,
@@ -83,11 +94,10 @@ class CalendarController extends Controller
                         'is_active'   => false,
                     ]
                 ];
-                // Update tanggal kumulatif untuk iterasi berikutnya
                 $cumulativeDate->addDays($mission->duration_days);
             }
         }
 
-        return response()->json($events);
+        return $events;
     }
 }
