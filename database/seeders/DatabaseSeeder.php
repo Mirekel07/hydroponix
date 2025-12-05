@@ -19,15 +19,15 @@ class DatabaseSeeder extends Seeder
         Schema::disableForeignKeyConstraints();
 
         User::factory()->create([
-            'name' => 'Test User',
-            'email' => 'test@example.com',
+            'name' => 'User',
+            'email' => 'User@example.com',
             'password' => bcrypt('password'),
             'role' => 'user',
         ]);
 
         User::factory()->create([
-            'name' => 'Admin',
-            'email' => 'admin@example.com',
+            'name' => 'TestAdmin',
+            'email' => 'testadmin@example.com',
             'password' => bcrypt('password'),
             'role' => 'admin',
         ]);
